@@ -1,11 +1,19 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 import { mbtiTypes } from '../data/mbtiTypes';
 import { isValidMbtiType } from '../utils/calculateMbti';
 import Toast from '../components/Toast';
 import ShareCard from '../components/ShareCard';
+
+function Section({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="py-8 border-b border-[#DDD9CE]">
+      <p className="text-xs font-bold tracking-[0.25em] uppercase text-[#9A9790] mb-5">{label}</p>
+      {children}
+    </div>
+  );
+}
 
 export default function ResultPage() {
   const { type } = useParams<{ type: string }>();
@@ -18,14 +26,14 @@ export default function ResultPage() {
 
   if (!isValidMbtiType(code) || !mbtiTypes[code]) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-6 px-5">
-        <div className="text-6xl">😕</div>
-        <h2 className="text-2xl font-black text-gray-800">존재하지 않는 유형이에요</h2>
+      <div className="min-h-[calc(100vh-56px)] flex flex-col items-center justify-center gap-8 px-6 fade-in">
+        <p className="text-xs font-bold tracking-[0.25em] uppercase text-[#9A9790]">오류</p>
+        <h2 className="text-4xl font-black text-[#1A1916]">존재하지 않는 유형이에요</h2>
         <Link
           to="/"
-          className="px-6 py-3 bg-indigo-500 text-white font-bold rounded-xl hover:bg-indigo-600"
+          className="inline-flex items-center gap-3 bg-[#1A1916] text-[#F3F0E8] px-7 py-3.5 text-xs font-black tracking-[0.18em] uppercase hover:bg-[#EDE84B] hover:text-[#1A1916] transition-all duration-150"
         >
-          테스트 시작하기
+          테스트 시작하기 →
         </Link>
       </div>
     );
@@ -37,19 +45,14 @@ export default function ResultPage() {
     if (!shareCardRef.current) return;
     setSaving(true);
     try {
-      const canvas = await html2canvas(shareCardRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: null,
-      });
-      const url = canvas.toDataURL('image/png');
+      const canvas = await html2canvas(shareCardRef.current, { scale: 2, useCORS: true, backgroundColor: null });
       const a = document.createElement('a');
-      a.href = url;
+      a.href = canvas.toDataURL('image/png');
       a.download = `TypeMe_${code}.png`;
       a.click();
-      setToast('이미지가 저장되었습니다!');
+      setToast('이미지가 저장되었습니다');
     } catch {
-      setToast('이미지 생성에 실패했습니다. 스크린샷을 이용해 주세요.');
+      setToast('이미지 생성에 실패했습니다');
     } finally {
       setSaving(false);
     }
@@ -58,98 +61,83 @@ export default function ResultPage() {
   async function handleCopyLink() {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      setToast('링크가 복사되었습니다!');
+      setToast('링크가 복사되었습니다');
     } catch {
-      setToast('링크 복사에 실패했습니다.');
+      setToast('링크 복사에 실패했습니다');
     }
   }
 
-  const fadeIn = (delay: number) => ({
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { delay, duration: 0.4 },
-  });
-
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* 히어로 배경 */}
-      <div
-        className="w-full py-12 px-5 text-center text-white"
-        style={{
-          background: `linear-gradient(135deg, ${t.color.gradient[0]}, ${t.color.gradient[1]})`,
-        }}
-      >
-        <motion.div {...fadeIn(0.1)}>
-          <div className="text-7xl mb-4">{t.emoji}</div>
-        </motion.div>
-        <motion.div {...fadeIn(0.3)}>
-          <h1 className="text-5xl font-black tracking-wide mb-2">{code}</h1>
-        </motion.div>
-        <motion.div {...fadeIn(0.5)}>
-          <p className="text-lg font-medium opacity-90">{t.typeName}</p>
-        </motion.div>
-      </div>
+    <div className="min-h-[calc(100vh-56px)] flex flex-col">
+      <main className="flex-1 max-w-3xl mx-auto w-full px-6 sm:px-10">
 
-      <main className="flex-1 max-w-2xl mx-auto w-full px-5 py-8 flex flex-col gap-6">
-        {/* 유형 설명 */}
-        <motion.div {...fadeIn(0.6)} className="bg-white rounded-2xl p-6 shadow-sm">
-          <p className="text-base text-gray-600 leading-relaxed">{t.description}</p>
-        </motion.div>
+        {/* 히어로 */}
+        <section className="pt-14 pb-10 border-b border-[#DDD9CE] fade-in">
+          <p className="text-xs font-bold tracking-[0.28em] uppercase text-[#9A9790] mb-6">
+            나의 유형
+          </p>
+          {/* 옐로우 액센트 바 */}
+          <div className="w-12 h-1.5 bg-[#EDE84B] mb-6" />
+          {/* 유형 코드 — 초대형 */}
+          <h1 className="text-[clamp(72px,18vw,128px)] font-black leading-none tracking-tight text-[#1A1916] mb-3">
+            {code}
+          </h1>
+          {/* 유형명 */}
+          <p className="text-lg sm:text-xl font-bold text-[#5A5750]">{t.typeName}</p>
+          {/* 이모지 */}
+          <p className="text-4xl mt-4">{t.emoji}</p>
+        </section>
+
+        {/* 설명 */}
+        <Section label="소개">
+          <p className="text-base text-[#1A1916] leading-[1.9] max-w-xl">{t.description}</p>
+        </Section>
 
         {/* 강점 */}
-        <motion.div {...fadeIn(0.7)} className="bg-white rounded-2xl p-6 shadow-sm">
-          <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span>💪</span> 강점
-          </h3>
-          <ul className="flex flex-col gap-2">
-            {t.strengths.map(s => (
-              <li key={s} className="flex items-start gap-2 text-sm text-gray-600">
-                <span className="text-green-500 mt-0.5 flex-shrink-0">✓</span>
-                {s}
+        <Section label="강점">
+          <ul className="flex flex-col gap-3">
+            {t.strengths.map((s, i) => (
+              <li key={s} className="flex items-baseline gap-4">
+                <span className="text-xs font-black text-[#DDD9CE] w-5 flex-shrink-0">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span className="text-sm font-medium text-[#1A1916]">{s}</span>
               </li>
             ))}
           </ul>
-        </motion.div>
+        </Section>
 
         {/* 약점 */}
-        <motion.div {...fadeIn(0.8)} className="bg-white rounded-2xl p-6 shadow-sm">
-          <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span>⚡</span> 약점
-          </h3>
-          <ul className="flex flex-col gap-2">
-            {t.weaknesses.map(w => (
-              <li key={w} className="flex items-start gap-2 text-sm text-gray-600">
-                <span className="text-orange-400 mt-0.5 flex-shrink-0">△</span>
-                {w}
+        <Section label="약점">
+          <ul className="flex flex-col gap-3">
+            {t.weaknesses.map((w, i) => (
+              <li key={w} className="flex items-baseline gap-4">
+                <span className="text-xs font-black text-[#DDD9CE] w-5 flex-shrink-0">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span className="text-sm font-medium text-[#5A5750]">{w}</span>
               </li>
             ))}
           </ul>
-        </motion.div>
+        </Section>
 
         {/* 추천 직업 */}
-        <motion.div {...fadeIn(0.9)} className="bg-white rounded-2xl p-6 shadow-sm">
-          <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span>💼</span> 추천 직업
-          </h3>
+        <Section label="추천 직업">
           <div className="flex flex-wrap gap-2">
             {t.careers.map(c => (
               <span
                 key={c}
-                className="px-3 py-1.5 rounded-full text-sm font-medium text-white"
-                style={{ background: t.color.primary }}
+                className="border border-[#DDD9CE] px-3 py-1.5 text-xs font-bold text-[#1A1916] tracking-wide"
               >
                 {c}
               </span>
             ))}
           </div>
-        </motion.div>
+        </Section>
 
         {/* 잘 맞는 유형 */}
-        <motion.div {...fadeIn(1.0)} className="bg-white rounded-2xl p-6 shadow-sm">
-          <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span>🤝</span> 잘 맞는 유형
-          </h3>
-          <div className="flex gap-3">
+        <Section label="잘 맞는 유형">
+          <div className="grid grid-cols-2 gap-px bg-[#DDD9CE] border border-[#DDD9CE]">
             {t.compatibleTypes.map(ct => {
               const ct_ = mbtiTypes[ct];
               if (!ct_) return null;
@@ -157,70 +145,63 @@ export default function ResultPage() {
                 <Link
                   key={ct}
                   to={`/result/${ct}`}
-                  className="flex-1 p-4 rounded-xl text-center hover:scale-105 transition-transform"
-                  style={{
-                    background: `linear-gradient(135deg, ${ct_.color.gradient[0]}33, ${ct_.color.gradient[1]}55)`,
-                  }}
+                  className="group bg-[#F3F0E8] p-6 hover:bg-[#EDE84B] transition-colors duration-150"
                 >
-                  <div className="text-2xl mb-1">{ct_.emoji}</div>
-                  <div className="text-sm font-black text-gray-800">{ct}</div>
-                  <div className="text-xs text-gray-500 mt-0.5 leading-tight">{ct_.typeName}</div>
+                  <p className="text-2xl mb-3">{ct_.emoji}</p>
+                  <p className="text-xl font-black text-[#1A1916] mb-1">{ct}</p>
+                  <p className="text-xs text-[#9A9790] font-medium">{ct_.typeName}</p>
                 </Link>
               );
             })}
           </div>
-        </motion.div>
+        </Section>
 
-        {/* 공유 버튼 */}
-        <motion.div {...fadeIn(1.1)} className="flex flex-col gap-3">
+        {/* 공유 */}
+        <section className="py-10 flex flex-col gap-3">
+          <p className="text-xs font-bold tracking-[0.25em] uppercase text-[#9A9790] mb-2">공유하기</p>
           <button
             onClick={handleSaveImage}
             disabled={saving}
-            className="w-full py-4 rounded-2xl bg-indigo-500 text-white font-bold hover:bg-indigo-600 active:scale-95 transition-all disabled:opacity-60 flex items-center justify-center gap-2"
+            className="w-full py-4 border border-[#1A1916] text-xs font-black tracking-[0.18em] uppercase text-[#1A1916] hover:bg-[#1A1916] hover:text-[#F3F0E8] disabled:opacity-40 transition-all duration-150 flex items-center justify-center gap-3"
           >
-            {saving ? (
-              <span className="animate-spin">⏳</span>
-            ) : (
-              '📷'
-            )}
-            이미지 저장
+            {saving ? '생성 중…' : '이미지 저장'}
           </button>
           <button
             onClick={handleCopyLink}
-            className="w-full py-4 rounded-2xl bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 active:scale-95 transition-all"
+            className="w-full py-4 border border-[#DDD9CE] text-xs font-black tracking-[0.18em] uppercase text-[#5A5750] hover:border-[#1A1916] hover:text-[#1A1916] transition-all duration-150"
           >
-            🔗 링크 복사
+            링크 복사
           </button>
-        </motion.div>
+        </section>
 
-        {/* 하단 액션 */}
-        <motion.div {...fadeIn(1.2)} className="flex flex-col gap-3 pt-2">
+        {/* 하단 네비 */}
+        <section className="border-t border-[#DDD9CE] py-8 flex flex-col sm:flex-row gap-4 sm:gap-8 sm:items-center">
           <Link
             to={`/stats?highlight=${code}`}
-            className="w-full py-3 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium text-center hover:bg-gray-50 transition-colors"
+            className="text-xs font-bold tracking-[0.18em] uppercase text-[#9A9790] hover:text-[#1A1916] transition-colors duration-150"
           >
-            📊 전체 통계 보기
+            전체 통계 보기 →
           </Link>
           <button
-            onClick={() => {
-              navigate('/');
-            }}
-            className="w-full py-3 rounded-xl text-gray-400 text-sm font-medium hover:text-gray-600 transition-colors"
+            onClick={() => navigate('/')}
+            className="text-xs font-bold tracking-[0.18em] uppercase text-[#9A9790] hover:text-[#1A1916] transition-colors duration-150 text-left"
           >
-            다시 테스트하기
+            다시 테스트하기 →
           </button>
-        </motion.div>
+        </section>
       </main>
 
       {/* 숨겨진 공유 카드 */}
-      <div className="fixed -left-[9999px] top-0">
+      <div className="fixed -left-[9999px] top-0" aria-hidden>
         <ShareCard ref={shareCardRef} mbtiType={t} />
       </div>
 
       {toast && <Toast message={toast} onClose={() => setToast('')} />}
 
-      <footer className="border-t border-gray-100 py-5 text-center">
-        <p className="text-xs text-gray-400">© 2026 TypeMe</p>
+      <footer className="border-t border-[#DDD9CE]">
+        <div className="max-w-3xl mx-auto px-6 sm:px-10 py-6">
+          <p className="text-xs text-[#9A9790] tracking-wide">© 2026 TypeMe</p>
+        </div>
       </footer>
     </div>
   );

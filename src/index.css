@@ -7,13 +7,32 @@
   padding: 0;
 }
 
+:root {
+  --bg:      #F3F0E8;
+  --surface: #FDFCF9;
+  --ink:     #1A1916;
+  --ink-2:   #5A5750;
+  --ink-3:   #9A9790;
+  --yellow:  #EDE84B;
+  --border:  #DDD9CE;
+}
+
 body {
   font-family: 'Noto Sans KR', sans-serif;
-  background-color: #F8F9FA;
-  color: #1A1A2E;
+  background-color: var(--bg);
+  color: var(--ink);
   -webkit-font-smoothing: antialiased;
 }
 
 #root {
   min-height: 100vh;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.35s ease both;
 }

@@ -20,79 +20,82 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-1 max-w-2xl mx-auto w-full px-5 py-10 flex flex-col items-center">
+    <div className="min-h-[calc(100vh-56px)] flex flex-col">
+      <main className="flex-1 max-w-3xl mx-auto w-full px-6 sm:px-10">
+
         {/* Hero */}
-        <div className="text-center mb-10">
-          <div className="text-6xl mb-4">🧠</div>
-          <h1 className="text-3xl font-black text-gray-800 mb-3 leading-tight">
-            나는 어떤 사람일까?
-          </h1>
-          <p className="text-base text-gray-500 mb-2">
-            12개의 질문으로 알아보는 나의 MBTI 유형
+        <section className="pt-16 pb-14 border-b border-[#DDD9CE] fade-in">
+          <p className="text-xs font-bold tracking-[0.28em] uppercase text-[#9A9790] mb-8">
+            MBTI Personality Test
           </p>
-          <span className="inline-block bg-indigo-50 text-indigo-500 text-xs font-bold px-3 py-1 rounded-full">
-            ⏱ 약 3분 소요
-          </span>
-        </div>
+          <h1 className="text-[clamp(52px,12vw,96px)] font-black leading-[0.92] tracking-tight text-[#1A1916]">
+            나는 어떤
+          </h1>
+          <h1 className="text-[clamp(52px,12vw,96px)] font-black leading-[0.92] tracking-tight text-[#1A1916] mt-1 mb-10">
+            사람일까?<span className="inline-block w-[0.55em] h-[0.12em] bg-[#EDE84B] ml-3 mb-2 align-middle" />
+          </h1>
+          <p className="text-sm text-[#5A5750] leading-relaxed mb-10 max-w-xs">
+            12개의 직관적인 질문으로 알아보는 나의 MBTI 유형. 약 3분 소요.
+          </p>
 
-        {/* 이전 결과 배너 */}
-        {lastResult && (
-          <div className="w-full mb-6 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center justify-between">
-            <div>
-              <p className="text-xs text-indigo-400 font-medium mb-1">이전 결과</p>
-              <p className="text-base font-bold text-indigo-600">
+          {/* 이전 결과 */}
+          {lastResult && (
+            <div className="flex items-center gap-6 py-4 border-t border-b border-[#DDD9CE] mb-10">
+              <span className="text-xs font-bold tracking-[0.18em] uppercase text-[#9A9790] flex-shrink-0">
+                이전 결과
+              </span>
+              <span className="text-sm font-black text-[#1A1916]">
                 {lastResult.typeCode} — {mbtiTypes[lastResult.typeCode]?.typeName}
-              </p>
-              <p className="text-xs text-gray-400 mt-0.5">
-                {new Date(lastResult.completedAt).toLocaleDateString('ko-KR')}
-              </p>
+              </span>
+              <Link
+                to={`/result/${lastResult.typeCode}`}
+                className="ml-auto text-xs font-bold tracking-[0.12em] uppercase text-[#1A1916] underline underline-offset-4 decoration-[#DDD9CE] hover:decoration-[#1A1916] transition-all duration-150 flex-shrink-0"
+              >
+                보기 →
+              </Link>
             </div>
-            <Link
-              to={`/result/${lastResult.typeCode}`}
-              className="text-sm font-bold text-indigo-500 hover:text-indigo-700"
-            >
-              보기 →
-            </Link>
-          </div>
-        )}
+          )}
 
-        {/* CTA */}
-        <button
-          onClick={handleStart}
-          className="w-full max-w-sm py-4 bg-indigo-500 text-white text-lg font-bold rounded-2xl hover:bg-indigo-600 active:scale-95 transition-all shadow-lg shadow-indigo-200 mb-10"
-        >
-          테스트 시작하기
-        </button>
+          <button
+            onClick={handleStart}
+            className="group inline-flex items-center gap-4 bg-[#1A1916] text-[#F3F0E8] px-8 py-4 text-xs font-black tracking-[0.18em] uppercase hover:bg-[#EDE84B] hover:text-[#1A1916] transition-all duration-150"
+          >
+            테스트 시작하기
+            <span className="group-hover:translate-x-1.5 transition-transform duration-150">→</span>
+          </button>
+        </section>
 
-        {/* 유형 그리드 */}
-        <div className="w-full">
-          <p className="text-xs text-gray-400 text-center mb-4 font-medium">16가지 MBTI 유형 탐색하기</p>
-          <div className="grid grid-cols-4 gap-2">
-            {mbtiTypeCodes.map(code => {
-              const t = mbtiTypes[code];
-              return (
-                <Link
-                  key={code}
-                  to={`/result/${code}`}
-                  className="flex flex-col items-center p-3 rounded-2xl hover:scale-105 transition-transform cursor-pointer"
-                  style={{
-                    background: `linear-gradient(135deg, ${t.color.gradient[0]}22, ${t.color.gradient[1]}44)`,
-                  }}
-                >
-                  <span className="text-2xl mb-1">{t.emoji}</span>
-                  <span className="text-xs font-bold text-gray-700">{code}</span>
-                </Link>
-              );
-            })}
+        {/* Type Grid */}
+        <section className="py-14 fade-in" style={{ animationDelay: '0.1s' }}>
+          <p className="text-xs font-bold tracking-[0.28em] uppercase text-[#9A9790] mb-8">
+            16가지 유형 탐색하기
+          </p>
+          {/* 1px 그리드 구분선 효과 */}
+          <div className="grid grid-cols-4 gap-px bg-[#DDD9CE] border border-[#DDD9CE]">
+            {mbtiTypeCodes.map(code => (
+              <Link
+                key={code}
+                to={`/result/${code}`}
+                className="group bg-[#F3F0E8] py-5 px-3 flex flex-col items-center gap-2 hover:bg-[#EDE84B] transition-colors duration-150"
+              >
+                <span className="text-xl leading-none">{mbtiTypes[code].emoji}</span>
+                <span className="text-[11px] font-black tracking-[0.14em] text-[#1A1916]">{code}</span>
+              </Link>
+            ))}
           </div>
-        </div>
+        </section>
       </main>
 
-      <footer className="border-t border-gray-100 py-5 text-center">
-        <p className="text-xs text-gray-400">
-          © 2026 TypeMe · <Link to="/stats" className="hover:text-indigo-500">통계</Link>
-        </p>
+      <footer className="border-t border-[#DDD9CE]">
+        <div className="max-w-3xl mx-auto px-6 sm:px-10 py-6 flex items-center justify-between">
+          <p className="text-xs text-[#9A9790] tracking-wide">© 2026 TypeMe</p>
+          <Link
+            to="/stats"
+            className="text-xs font-bold tracking-[0.15em] uppercase text-[#9A9790] hover:text-[#1A1916] transition-colors duration-150"
+          >
+            Statistics
+          </Link>
+        </div>
       </footer>
     </div>
   );

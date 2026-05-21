@@ -45,120 +45,126 @@ export default function StatsPage() {
   const maxCount = Math.max(...stats.map(s => s.count), 1);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-1 max-w-2xl mx-auto w-full px-5 py-8">
+    <div className="min-h-[calc(100vh-56px)] flex flex-col">
+      <main className="flex-1 max-w-3xl mx-auto w-full px-6 sm:px-10">
+
         {/* 헤더 */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-black text-gray-800 mb-1">
-            지금까지 총 <span className="text-indigo-500">{total.toLocaleString()}</span>명이 테스트했어요
+        <section className="pt-14 pb-10 border-b border-[#DDD9CE] fade-in">
+          <p className="text-xs font-bold tracking-[0.28em] uppercase text-[#9A9790] mb-6">
+            Statistics
+          </p>
+          <div className="w-12 h-1.5 bg-[#EDE84B] mb-6" />
+          <h1 className="text-[clamp(36px,8vw,64px)] font-black leading-none tracking-tight text-[#1A1916]">
+            {total.toLocaleString()}명이
+            <br />테스트했어요
           </h1>
-          <p className="text-sm text-gray-400">MBTI 유형 분포 통계</p>
-        </div>
+        </section>
 
         {/* 정렬 탭 */}
-        <div className="flex gap-2 mb-6 bg-gray-100 p-1 rounded-xl">
-          <button
-            onClick={() => setSortBy('count')}
-            className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${
-              sortBy === 'count'
-                ? 'bg-white text-indigo-500 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            비율 순
-          </button>
-          <button
-            onClick={() => setSortBy('alpha')}
-            className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${
-              sortBy === 'alpha'
-                ? 'bg-white text-indigo-500 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            유형명 순
-          </button>
+        <div className="flex border-b border-[#DDD9CE] fade-in" style={{ animationDelay: '0.05s' }}>
+          {(['count', 'alpha'] as const).map(key => (
+            <button
+              key={key}
+              onClick={() => setSortBy(key)}
+              className={`py-4 px-1 mr-8 text-xs font-black tracking-[0.18em] uppercase border-b-2 -mb-px transition-all duration-150 ${
+                sortBy === key
+                  ? 'border-[#1A1916] text-[#1A1916]'
+                  : 'border-transparent text-[#9A9790] hover:text-[#1A1916]'
+              }`}
+            >
+              {key === 'count' ? '비율 순' : '유형명 순'}
+            </button>
+          ))}
         </div>
 
         {/* 차트 */}
-        {stats.length === 0 ? (
-          <div className="flex flex-col items-center gap-4 py-16">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="w-full h-10 bg-gray-100 rounded-xl animate-pulse" />
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {sorted.map(entry => {
-              const t = mbtiTypes[entry.typeCode];
-              const isHighlight = entry.typeCode === highlight;
-              const barWidth = (entry.count / maxCount) * 100;
+        <section className="py-6 fade-in" style={{ animationDelay: '0.1s' }}>
+          {stats.length === 0 ? (
+            <div className="flex flex-col gap-4 py-10">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="w-full h-10 bg-[#DDD9CE] animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              {sorted.map((entry, i) => {
+                const isHighlight = entry.typeCode === highlight;
+                const barWidth = (entry.count / maxCount) * 100;
+                const t = mbtiTypes[entry.typeCode];
 
-              return (
-                <Link
-                  key={entry.typeCode}
-                  to={`/result/${entry.typeCode}`}
-                  className={`flex items-center gap-3 p-3 rounded-2xl transition-all hover:scale-[1.01] ${
-                    isHighlight ? 'bg-indigo-50 border-2 border-indigo-300' : 'bg-white border-2 border-transparent'
-                  }`}
-                >
-                  {/* 이모지 */}
-                  <div className="text-2xl w-10 text-center flex-shrink-0">{t.emoji}</div>
+                return (
+                  <Link
+                    key={entry.typeCode}
+                    to={`/result/${entry.typeCode}`}
+                    className={`group flex items-center gap-5 py-4 border-b border-[#DDD9CE] hover:bg-[#EDE84B] -mx-6 sm:-mx-10 px-6 sm:px-10 transition-colors duration-150 ${
+                      isHighlight ? 'bg-[#EDE84B]' : ''
+                    }`}
+                    style={{ animationDelay: `${i * 0.02}s` }}
+                  >
+                    {/* 순위 */}
+                    <span className="text-xs font-black text-[#DDD9CE] w-6 flex-shrink-0 text-right">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
 
-                  {/* 유형 코드 & 바 */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-1">
-                        <span className="text-sm font-black text-gray-800">{entry.typeCode}</span>
+                    {/* 이모지 + 코드 */}
+                    <div className="flex items-center gap-2 w-28 flex-shrink-0">
+                      <span className="text-base">{t.emoji}</span>
+                      <div>
+                        <p className="text-xs font-black text-[#1A1916] tracking-wider">{entry.typeCode}</p>
                         {isHighlight && (
-                          <span className="text-xs text-indigo-500 font-bold">★ 내 유형</span>
+                          <p className="text-[10px] font-bold text-[#5A5750]">내 유형</p>
                         )}
                       </div>
-                      <span className="text-sm font-bold text-gray-600">{entry.percentage}%</span>
                     </div>
-                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{
-                          width: `${barWidth}%`,
-                          background: `linear-gradient(90deg, ${t.color.gradient[0]}, ${t.color.gradient[1]})`,
-                        }}
-                      />
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1">{t.typeName}</p>
-                  </div>
 
-                  {/* 수 */}
-                  <div className="text-xs text-gray-400 flex-shrink-0 w-16 text-right">
-                    {entry.count.toLocaleString()}명
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+                    {/* 바 */}
+                    <div className="flex-1 min-w-0">
+                      <div className="w-full h-1 bg-[#DDD9CE]">
+                        <div
+                          className="h-full transition-all duration-500"
+                          style={{
+                            width: `${barWidth}%`,
+                            background: isHighlight ? '#1A1916' : '#1A1916',
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* 퍼센트 */}
+                    <span className="text-xs font-black text-[#1A1916] w-10 text-right flex-shrink-0">
+                      {entry.percentage}%
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </section>
 
         {/* 하단 CTA */}
-        <div className="mt-8 flex flex-col gap-3">
+        <section className="py-10 border-t border-[#DDD9CE]">
           {highlight ? (
             <Link
               to={`/result/${highlight}`}
-              className="w-full py-3 rounded-xl bg-indigo-500 text-white font-bold text-center hover:bg-indigo-600 transition-colors"
+              className="inline-flex items-center gap-3 bg-[#1A1916] text-[#F3F0E8] px-8 py-4 text-xs font-black tracking-[0.18em] uppercase hover:bg-[#EDE84B] hover:text-[#1A1916] transition-all duration-150"
             >
-              내 결과 다시 보기 ({highlight})
+              내 결과 보기 ({highlight}) →
             </Link>
           ) : (
             <Link
               to="/"
-              className="w-full py-3 rounded-xl bg-indigo-500 text-white font-bold text-center hover:bg-indigo-600 transition-colors"
+              className="inline-flex items-center gap-3 bg-[#1A1916] text-[#F3F0E8] px-8 py-4 text-xs font-black tracking-[0.18em] uppercase hover:bg-[#EDE84B] hover:text-[#1A1916] transition-all duration-150"
             >
-              테스트 시작하기
+              테스트 시작하기 →
             </Link>
           )}
-        </div>
+        </section>
       </main>
 
-      <footer className="border-t border-gray-100 py-5 text-center">
-        <p className="text-xs text-gray-400">© 2026 TypeMe</p>
+      <footer className="border-t border-[#DDD9CE]">
+        <div className="max-w-3xl mx-auto px-6 sm:px-10 py-6">
+          <p className="text-xs text-[#9A9790] tracking-wide">© 2026 TypeMe</p>
+        </div>
       </footer>
     </div>
   );

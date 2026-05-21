@@ -12,81 +12,43 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(({ mbtiType: t }, r
       style={{
         width: '540px',
         height: '540px',
-        background: `linear-gradient(135deg, ${t.color.gradient[0]}, ${t.color.gradient[1]})`,
+        background: '#F3F0E8',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '40px',
+        justifyContent: 'space-between',
+        padding: '48px',
         fontFamily: 'sans-serif',
         position: 'relative',
+        boxSizing: 'border-box',
       }}
     >
-      {/* 로고 */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '28px',
-          left: '32px',
-          color: 'rgba(255,255,255,0.9)',
-          fontWeight: 900,
-          fontSize: '22px',
-          letterSpacing: '-0.5px',
-        }}
-      >
-        TypeMe
+      {/* Top: branding */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <span style={{ fontSize: '12px', fontWeight: 900, letterSpacing: '0.2em', color: '#9A9790' }}>
+          TYPEME
+        </span>
+        <span style={{ fontSize: '32px' }}>{t.emoji}</span>
       </div>
 
-      {/* 이모지 */}
-      <div style={{ fontSize: '80px', marginBottom: '16px' }}>{t.emoji}</div>
-
-      {/* 유형 코드 */}
-      <div
-        style={{
-          color: 'white',
-          fontSize: '56px',
-          fontWeight: 900,
-          letterSpacing: '2px',
-          marginBottom: '8px',
-        }}
-      >
-        {t.typeCode}
+      {/* Center: type code */}
+      <div>
+        <div style={{ width: '48px', height: '6px', background: '#EDE84B', marginBottom: '20px' }} />
+        <div style={{ fontSize: '88px', fontWeight: 900, color: '#1A1916', lineHeight: 1, letterSpacing: '-2px', marginBottom: '12px' }}>
+          {t.typeCode}
+        </div>
+        <div style={{ fontSize: '18px', fontWeight: 700, color: '#5A5750', marginBottom: '24px' }}>
+          {t.typeName}
+        </div>
+        <div style={{ fontSize: '13px', color: '#9A9790', lineHeight: 1.8 }}>
+          {t.strengths.slice(0, 3).join('  ·  ')}
+        </div>
       </div>
 
-      {/* 유형명 */}
-      <div
-        style={{
-          color: 'rgba(255,255,255,0.9)',
-          fontSize: '20px',
-          fontWeight: 700,
-          marginBottom: '24px',
-        }}
-      >
-        {t.typeName}
-      </div>
-
-      {/* 강점 요약 */}
-      <div
-        style={{
-          color: 'rgba(255,255,255,0.85)',
-          fontSize: '14px',
-          textAlign: 'center',
-          lineHeight: '1.8',
-        }}
-      >
-        {t.strengths.slice(0, 3).join(' · ')}
-      </div>
-
-      {/* URL */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '24px',
-          color: 'rgba(255,255,255,0.6)',
-          fontSize: '12px',
-        }}
-      >
-        typeme.kr
+      {/* Bottom: url */}
+      <div style={{ borderTop: '1px solid #DDD9CE', paddingTop: '16px' }}>
+        <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.15em', color: '#9A9790' }}>
+          typeme.kr
+        </span>
       </div>
     </div>
   );

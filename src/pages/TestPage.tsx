@@ -1,26 +1,17 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
 import { useTestStore } from '../store/testStore';
 import { questions } from '../data/questions';
 import { calculateMbtiType } from '../utils/calculateMbti';
 import ProgressBar from '../components/ProgressBar';
 
-const slideVariants = {
-  enter: (dir: number) => ({ x: dir > 0 ? 300 : -300, opacity: 0 }),
-  center: { x: 0, opacity: 1 },
-  exit: (dir: number) => ({ x: dir > 0 ? -300 : 300, opacity: 0 }),
-};
-
 export default function TestPage() {
   const navigate = useNavigate();
   const { currentQuestion, answers, setAnswer, goBack, reset } = useTestStore();
+  const [animKey, setAnimKey] = useState(0);
 
-  useEffect(() => {
-    reset();
-  }, []);
+  useEffect(() => { reset(); }, []);
 
-  // 12문항 완료 시 결과 계산
   useEffect(() => {
     if (currentQuestion > 12 && Object.keys(answers).length === 12) {
       const type = calculateMbtiType(answers);
@@ -35,74 +26,74 @@ export default function TestPage() {
   if (currentQuestion > 12) return null;
 
   const q = questions[currentQuestion - 1];
-  const direction = 1;
 
   function handleSelect(v: 'A' | 'B') {
+    setAnimKey(k => k + 1);
     setAnswer(currentQuestion, v);
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="max-w-2xl mx-auto w-full px-5 pt-6 pb-4">
+    <div className="min-h-[calc(100vh-56px)] flex flex-col bg-[#F3F0E8]">
+      {/* 진행 바 */}
+      <div className="max-w-3xl mx-auto w-full px-6 sm:px-10 pt-6">
         <ProgressBar value={currentQuestion} max={12} />
       </div>
 
-      <main className="flex-1 max-w-2xl mx-auto w-full px-5 flex flex-col justify-center py-8">
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={currentQuestion}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="flex flex-col gap-6"
-          >
-            {/* 질문 번호 뱃지 */}
-            <div className="flex items-center gap-2">
-              <span className="bg-indigo-500 text-white text-xs font-black px-3 py-1 rounded-full">
-                Q{currentQuestion}
-              </span>
-              <span className="text-xs text-gray-400">{q.dimension}</span>
-            </div>
+      {/* 질문 영역 */}
+      <main className="flex-1 max-w-3xl mx-auto w-full px-6 sm:px-10 flex flex-col justify-center py-12">
+        <div
+          key={animKey}
+          className="fade-in flex flex-col gap-10"
+        >
+          {/* 문항 레이블 */}
+          <div className="flex items-center gap-4">
+            <span className="text-xs font-black tracking-[0.22em] uppercase text-[#9A9790]">
+              Q {String(currentQuestion).padStart(2, '0')}
+            </span>
+            <span className="text-xs font-bold tracking-[0.15em] uppercase text-[#DDD9CE]">
+              {q.dimension}
+            </span>
+          </div>
 
-            {/* 질문 텍스트 */}
-            <h2 className="text-xl font-bold text-gray-800 leading-snug">
-              {q.text}
-            </h2>
+          {/* 질문 텍스트 */}
+          <h2 className="text-2xl sm:text-3xl font-black leading-snug text-[#1A1916] max-w-lg">
+            {q.text}
+          </h2>
 
-            {/* 선택지 */}
-            <div className="flex flex-col gap-3">
-              {(['A', 'B'] as const).map(key => (
-                <button
-                  key={key}
-                  onClick={() => handleSelect(key)}
-                  className={`w-full p-5 rounded-2xl border-2 text-left text-base font-medium transition-all active:scale-98 ${
-                    answers[currentQuestion] === key
-                      ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                      : 'border-gray-100 bg-white text-gray-700 hover:border-indigo-200 hover:bg-indigo-50/50'
-                  }`}
-                >
-                  <span className="inline-block w-7 h-7 rounded-full bg-indigo-100 text-indigo-500 text-xs font-black text-center leading-7 mr-3">
+          {/* 선택지 */}
+          <div className="flex flex-col gap-3">
+            {(['A', 'B'] as const).map(key => (
+              <button
+                key={key}
+                onClick={() => handleSelect(key)}
+                className={`group w-full text-left border transition-all duration-150 ${
+                  answers[currentQuestion] === key
+                    ? 'border-[#1A1916] bg-[#EDE84B]'
+                    : 'border-[#DDD9CE] bg-[#FDFCF9] hover:border-[#1A1916] hover:bg-[#EDE84B]'
+                }`}
+              >
+                <div className="flex items-start gap-5 p-5 sm:p-6">
+                  <span className="flex-shrink-0 text-xs font-black tracking-[0.18em] text-[#9A9790] mt-0.5 w-4">
                     {key}
                   </span>
-                  {q.options[key].text}
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        </AnimatePresence>
+                  <span className="text-sm sm:text-base font-medium text-[#1A1916] leading-relaxed">
+                    {q.options[key].text}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
       </main>
 
-      {/* 이전 문항 버튼 */}
-      <div className="max-w-2xl mx-auto w-full px-5 pb-8">
+      {/* 이전 문항 */}
+      <div className="max-w-3xl mx-auto w-full px-6 sm:px-10 pb-10">
         <button
           onClick={goBack}
           disabled={currentQuestion === 1}
-          className="text-sm text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="text-xs font-bold tracking-[0.15em] uppercase text-[#9A9790] hover:text-[#1A1916] disabled:opacity-20 disabled:cursor-not-allowed transition-colors duration-150"
         >
-          ← 이전 문항
+          ← 이전
         </button>
       </div>
     </div>
